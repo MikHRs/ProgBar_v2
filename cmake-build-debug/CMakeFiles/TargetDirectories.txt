@@ -1,0 +1,3 @@
+/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/CMakeFiles/ProgBar_v2.dir
+/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/CMakeFiles/rebuild_cache.dir
