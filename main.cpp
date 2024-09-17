@@ -40,9 +40,9 @@ public:
         loader->attach(observer);
         // Quando si clicca sul bottone, inizia il caricamento in un thread separato
         connect(button, &QPushButton::clicked, [loader]() {
-            std::vector<std::string> files = {"file1.txt", "file2.txt", "file3.txt", "file4.txt"};
+            std::vector<std::string> files = {"file1.txt", "file2.txt", "file3.txt", "file4.txt","bhdcviuwebub"};
             std::thread loadingThread(&Subject::load, loader, files);
-            loadingThread.detach();  // Il thread lavora in background
+            loadingThread.detach(); // Il thread lavora in background
         });
     }
 };
