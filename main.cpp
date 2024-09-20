@@ -8,51 +8,61 @@
 #include <thread>
 #include <chrono>
 #include "subject.h"
-class ProgressbarBarObservers : public Observer{
-private:
-    QProgressBar* progressBar;
+#include "observer.h"
+#include <QWidget>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QProgressBar>
+#include <QPushButton>
+#include <QFileDialog>
+#include <QDir>
+#include <QMessageBox>
 
+class MainWindow : public QWidget {
 public:
-    ProgressbarBarObservers(QProgressBar* bar) : progressBar(bar) {};
-    void update(float progresso) override{
-        progressBar->setValue(static_cast<int>(progresso *100));
-    }
-};
+    MainWindow(ConcreteSubject* loader) {
+        QVBoxLayout* layout = new QVBoxLayout(this);
 
-class MainWindow:public QWidget{
-public:
-    MainWindow(Subject* loader){
-        QVBoxLayout* Layout = new QVBoxLayout(this);
-
-        QLabel* label = new QLabel("caricamento risorse", this);
+        QLabel* label = new QLabel("Caricamento risorse", this);
         QProgressBar* progressBar = new QProgressBar(this);
-        progressBar->setRange(0,100);
+        progressBar->setRange(0, 100);
         progressBar->setValue(0);
 
-        QPushButton*button = new QPushButton("inizia caricamento",this);
-        //aggiungo gli elementi al layout
-        Layout->addWidget(label);
-        Layout->addWidget(progressBar);
-        Layout->addWidget(button);
+        QPushButton* button = new QPushButton("Seleziona cartella e inizia caricamento", this);
 
-        //collegamento observer alla progress bar
-        ProgressbarBarObservers* observer= new ProgressbarBarObservers(progressBar);
+        layout->addWidget(label);
+        layout->addWidget(progressBar);
+        layout->addWidget(button);
+
+        auto observer = std::make_shared<ConcreteObserver>(progressBar);
         loader->attach(observer);
-        // Quando si clicca sul bottone, inizia il caricamento in un thread separato
-        connect(button, &QPushButton::clicked, [loader]() {
-            std::vector<std::string> files = {"file1.txt", "file2.txt", "file3.txt", "file4.txt","bhdcviuwebub"};
-            std::thread loadingThread(&Subject::load, loader, files);
-            loadingThread.detach(); // Il thread lavora in background
+
+        connect(button, &QPushButton::clicked, [loader, this]() {
+            QString directory = QFileDialog::getExistingDirectory(this, "Seleziona una cartella", "");
+            if (!directory.isEmpty()) {
+                QDir dir(directory);
+                QStringList filesList = dir.entryList(QDir::Files);
+
+                std::vector<std::string> files;
+                for (const QString& file : filesList) {
+                    files.push_back((dir.absoluteFilePath(file)).toStdString());
+                }
+
+                if (!files.empty()) {
+                    std::thread loadingThread(&ConcreteSubject::load, loader, files);
+                    loadingThread.detach();
+                } else {
+                    QMessageBox::information(this, "Errore", "Nessun file trovato nella cartella selezionata.");
+                }
+            }
         });
     }
 };
+
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
-    // Crea un Subject (caricatore di risorse)
-    Subject loader;
-
-    // Crea la finestra principale
+    ConcreteSubject loader;
     MainWindow window(&loader);
     window.setWindowTitle("Progress Bar Observer");
     window.show();

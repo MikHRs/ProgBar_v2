@@ -9,38 +9,47 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include "observer.h"
+#include <mutex>
 
-//observer interfaccia
-class Observer {
-public:
-    virtual void update(float progresso) =0; //metodo chiamto dal soggetto per aggiornare lo stato di avanzamento della progressbar
-};
 
 //creo la claase Subject (carica i file)
 class Subject{
-private:
-    std::vector<Observer*> observers;
+protected:
+    std::vector<std::shared_ptr<Observer>> observers;
     float progresso=0.0;
+    std::mutex mtx;
 
 public:
-    void attach(Observer* obs){
+    void attach(std::shared_ptr<Observer> obs) {
+        std::lock_guard<std::mutex> lock(mtx);
         observers.push_back(obs);
     }
-    void detach(Observer* obs){
-        observers.erase(std::remove(observers.begin(),observers.end(),obs),observers.end());
+
+    void detach(std::shared_ptr<Observer> obs) {
+        std::lock_guard<std::mutex> lock(mtx);
+        observers.erase(std::remove(observers.begin(), observers.end(), obs), observers.end());
     }
-    void notify(){
-        for (Observer*obs : observers){
-            obs->update(progresso);
+    void notify() {
+        std::lock_guard<std::mutex> lock(mtx);
+        for (const auto& obs : observers) {
+            if (obs) {
+                obs->update(progresso);
+            }
         }
     }
-    void load(const std::vector<std::string>& files){
+    virtual void load(const std::vector<std::string>& files) = 0;
+};
+class ConcreteSubject : public Subject {
+public:
+    void load(const std::vector<std::string>& files) override {
         for (int i = 0; i < files.size(); ++i) {
-            //simulazione caricamento
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            progresso = static_cast<float>(i+1)/(files.size());
-            notify();
-            
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));  // Simula il caricamento
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                progresso = static_cast<float>(i + 1) / files.size();
+            }
+            notify();  // Notifica tutti gli observer
         }
     }
 };
