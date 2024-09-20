@@ -19,6 +19,8 @@
 #include <QMessageBox>
 
 class MainWindow : public QWidget {
+private:
+    QLabel* fileCountLabel; // Dichiara il QLabel per il conteggio dei file
 public:
     MainWindow(ConcreteSubject* loader) {
         QVBoxLayout* layout = new QVBoxLayout(this);
@@ -28,8 +30,11 @@ public:
         progressBar->setRange(0, 100);
         progressBar->setValue(0);
 
+        fileCountLabel = new QLabel("", this); // Nuovo QLabel per mostrare il numero di file
         QPushButton* button = new QPushButton("Seleziona cartella e inizia caricamento", this);
 
+
+        layout->addWidget(label);
         layout->addWidget(label);
         layout->addWidget(progressBar);
         layout->addWidget(button);
@@ -51,12 +56,15 @@ public:
                 if (!files.empty()) {
                     std::thread loadingThread(&ConcreteSubject::load, loader, files);
                     loadingThread.detach();
+
+                    fileCountLabel->setText(QString("Numero di file: %1").arg(files.size()));
                 } else {
                     QMessageBox::information(this, "Errore", "Nessun file trovato nella cartella selezionata.");
                 }
             }
         });
     }
+
 };
 
 int main(int argc, char* argv[]) {
