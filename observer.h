@@ -10,7 +10,7 @@
 class Observer {
 public:
     virtual void update(float progresso) =0; //metodo chiamto dal soggetto per aggiornare lo stato di avanzamento della progressbar
-    virtual ~Observer() {}  // Distruttore virtuale
+    virtual ~Observer() = default;  // Distruttore virtuale
 };
 
 

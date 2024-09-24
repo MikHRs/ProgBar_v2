@@ -6,16 +6,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <thread>
-#include <chrono>
-#include "subject.h"
-#include "observer.h"
 #include "subjectconcrete.h"
 #include "observerconcrete.h"
-#include <QWidget>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QProgressBar>
-#include <QPushButton>
 #include <QFileDialog>
 #include <QDir>
 #include <QMessageBox>
@@ -24,7 +16,7 @@ class MainWindow : public QWidget {
 private:
     QLabel* fileCountLabel; // Dichiara il QLabel per il conteggio dei file
 public:
-    MainWindow(ConcreteSubject* loader) {
+    explicit MainWindow(ConcreteSubject* loader) {
         QVBoxLayout* layout = new QVBoxLayout(this);
 
         QLabel* label = new QLabel("Caricamento risorse", this);
