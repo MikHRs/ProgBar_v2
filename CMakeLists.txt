@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 add_executable(ProgBar_v2 main.cpp
         subject.h
-        observer.h)
+        observer.h
+        observerconcrete.h
+        subjectconcrete.h)
 # Linka Qt5 Widgets
 target_link_libraries(ProgBar_v2 Qt5::Widgets)

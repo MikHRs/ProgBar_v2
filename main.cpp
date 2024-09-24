@@ -9,6 +9,8 @@
 #include <chrono>
 #include "subject.h"
 #include "observer.h"
+#include "subjectconcrete.h"
+#include "observerconcrete.h"
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -35,8 +37,8 @@ public:
 
 
         layout->addWidget(label);
-        layout->addWidget(label);
         layout->addWidget(progressBar);
+        layout->addWidget(fileCountLabel);
         layout->addWidget(button);
 
         auto observer = std::make_shared<ConcreteObserver>(progressBar);
