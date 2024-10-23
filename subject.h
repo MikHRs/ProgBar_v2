@@ -11,6 +11,7 @@
 #include <thread>
 #include "observer.h"
 #include <mutex>
+#include <memory>
 
 
 //creo la claase Subject (carica i file)
@@ -21,15 +22,18 @@ protected:
     std::mutex mtx;
 
 public:
-    void attach(std::shared_ptr<Observer> obs) {
+    virtual ~Subject() = default;
+
+    void subscribe(std::shared_ptr<Observer> obs) {
         std::lock_guard<std::mutex> lock(mtx);
         observers.push_back(obs);
     }
 
-    void detach(std::shared_ptr<Observer> obs) {
+    void unsubscribe(std::shared_ptr<Observer> obs) {
         std::lock_guard<std::mutex> lock(mtx);
         observers.erase(std::remove(observers.begin(), observers.end(), obs), observers.end());
     }
+
     void notify() {
         std::lock_guard<std::mutex> lock(mtx);
         for (const auto& obs : observers) {
@@ -38,6 +42,7 @@ public:
             }
         }
     }
+
     virtual void load(const std::vector<std::string>& files) = 0;
 };
 

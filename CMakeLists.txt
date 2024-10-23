@@ -11,3 +11,4 @@ add_executable(ProgBar_v2 main.cpp
         subjectconcrete.h)
 # Linka Qt5 Widgets
 target_link_libraries(ProgBar_v2 Qt5::Widgets)
+

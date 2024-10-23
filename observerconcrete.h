@@ -21,15 +21,17 @@ public:
     }
 
     void update(float progresso) override {
-        if (progressBar) {
-            QMetaObject::invokeMethod(progressBar, [this, progresso]() {
-                if (progressBar) {
-                    progressBar->setValue(static_cast<int>(progresso * 100));
-                }
-            }, Qt::QueuedConnection);
-        }
+        // Assicurati di aggiornare la progress bar nel thread GUI
+        QMetaObject::invokeMethod(progressBar, "setValue", Q_ARG(int, static_cast<int>(progresso * 100)));
     }
 
+    void attach(Subject* subject) override {
+        subject->subscribe(std::shared_ptr<Observer>(this));
+    }
+
+    void detach(Subject* subject) override {
+        subject->unsubscribe(std::shared_ptr<Observer>(this));
+    }
 
     ~ConcreteObserver() override = default;
 };
