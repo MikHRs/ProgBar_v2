@@ -1,0 +1,5 @@
+if(EXISTS "/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/progbar_test[1]_tests.cmake")
+  include("/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/progbar_test[1]_tests.cmake")
+else()
+  add_test(progbar_test_NOT_BUILT progbar_test_NOT_BUILT)
+endif()
