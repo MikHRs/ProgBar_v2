@@ -34,14 +34,15 @@ public:
         observers.erase(std::remove(observers.begin(), observers.end(), obs), observers.end());
     }
 
-    void notify() {
+    void notify(const std::string& currentFile) {
         std::lock_guard<std::mutex> lock(mtx);
         for (const auto& obs : observers) {
             if (obs) {
-                obs->update(progresso);
+                obs->update(progresso, currentFile);  // Passa anche il nome del file
             }
         }
     }
+
 
     virtual void load(const std::vector<std::string>& files) = 0;
 };

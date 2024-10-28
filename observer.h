@@ -10,7 +10,7 @@
 class Subject;
 class Observer {
 public:
-    virtual void update(float progresso) =0; //metodo chiamto dal soggetto per aggiornare lo stato di avanzamento della progressbar
+    virtual void update(float progresso, const std::string& currentFile) = 0;//metodo chiamto dal soggetto per aggiornare lo stato di avanzamento della progressbar
     virtual void attach(Subject* subject) = 0;
     virtual void detach(Subject* subject) = 0;
     virtual ~Observer() = default;  // Distruttore virtuale
@@ -20,3 +20,4 @@ public:
 
 
 #endif //PROGBAR_V2_OBSERVER_H
+

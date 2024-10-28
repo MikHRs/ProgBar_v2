@@ -15,7 +15,8 @@
 class MainWindow : public QWidget {
 private:
     QLabel* fileCountLabel;
-    std::shared_ptr<ConcreteObserver> observer; // Aggiunto per mantenere il riferimento
+    QLabel* fileNameLabel;
+    std::shared_ptr<ConcreteObserver> observer; // Manteniamo un riferimento all'observer
 
 public:
     explicit MainWindow(ConcreteSubject* loader) {
@@ -26,6 +27,7 @@ public:
         progressBar->setRange(0, 100);
         progressBar->setValue(0);
 
+        fileNameLabel = new QLabel("", this);
         fileCountLabel = new QLabel("", this);
         QPushButton* button = new QPushButton("Seleziona cartella e inizia caricamento", this);
 
@@ -33,9 +35,11 @@ public:
         layout->addWidget(progressBar);
         layout->addWidget(fileCountLabel);
         layout->addWidget(button);
+        layout->addWidget(fileNameLabel);
 
-        observer = std::make_shared<ConcreteObserver>(progressBar); // Conserva il riferimento
-        observer->attach(loader);  // Usa attach dell'Observer per iscriversi al Subject
+        // Crea l'observer con entrambi i parametri e lo attacca al loader
+        observer = std::make_shared<ConcreteObserver>(progressBar, fileNameLabel);
+        observer->attach(loader);
 
         connect(button, &QPushButton::clicked, [loader, this]() {
             QString directory = QFileDialog::getExistingDirectory(this, "Seleziona una cartella", "");
