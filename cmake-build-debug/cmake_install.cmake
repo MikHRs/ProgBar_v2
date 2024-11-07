@@ -1,4 +1,4 @@
-# Install script for directory: /home/michele/Scrivania/labprog/ProgBar_v2
+# Install script for directory: /home/michele/Scrivania/labprog/progbardfd
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/michele/Scrivania/labprog/ProgBar_v2/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/michele/Scrivania/labprog/progbardfd/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

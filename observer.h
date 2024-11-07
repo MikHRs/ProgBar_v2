@@ -20,4 +20,3 @@ public:
 
 
 #endif //PROGBAR_V2_OBSERVER_H
-

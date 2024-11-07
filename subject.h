@@ -44,7 +44,7 @@ public:
     }
 
 
-    virtual void load(const std::vector<std::string>& files) = 0;
+    virtual void load() = 0;
 };
 
 #endif //PROGBAR_V2_SUBJECT_H

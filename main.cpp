@@ -17,9 +17,10 @@ private:
     QLabel* fileCountLabel;
     QLabel* fileNameLabel;
     std::shared_ptr<ConcreteObserver> observer; // Manteniamo un riferimento all'observer
+    ConcreteSubject* loader; // Puntatore al ConcreteSubject
 
 public:
-    explicit MainWindow(ConcreteSubject* loader) {
+    explicit MainWindow(ConcreteSubject* loader) : loader(loader) {
         QVBoxLayout* layout = new QVBoxLayout(this);
 
         QLabel* label = new QLabel("Caricamento risorse", this);
@@ -37,26 +38,27 @@ public:
         layout->addWidget(button);
         layout->addWidget(fileNameLabel);
 
-        // Crea l'observer con entrambi i parametri e lo attacca al loader
+        // Crea l'observer e lo attacca al loader
         observer = std::make_shared<ConcreteObserver>(progressBar, fileNameLabel);
         observer->attach(loader);
 
-        connect(button, &QPushButton::clicked, [loader, this]() {
+        connect(button, &QPushButton::clicked, [loader, this]() {  // Cattura loader esplicitamente
             QString directory = QFileDialog::getExistingDirectory(this, "Seleziona una cartella", "");
             if (!directory.isEmpty()) {
                 QDir dir(directory);
                 QStringList filesList = dir.entryList(QDir::Files);
 
-                std::vector<std::string> files;
+                loader->clearFiles();  // Pulisce la lista dei file prima di aggiungere i nuovi
+
                 for (const QString& file : filesList) {
-                    files.push_back((dir.absoluteFilePath(file)).toStdString());
+                    loader->addFile((dir.absoluteFilePath(file)).toStdString());  // Aggiungi ogni file singolarmente
                 }
 
-                if (!files.empty()) {
-                    std::thread loadingThread(&ConcreteSubject::load, loader, files);
+                if (!filesList.isEmpty()) {
+                    std::thread loadingThread([loader]() { loader->load(); });  // Esegue il caricamento senza parametri
                     loadingThread.detach();
 
-                    fileCountLabel->setText(QString("Numero di file: %1").arg(files.size()));
+                    fileCountLabel->setText(QString("Numero di file: %1").arg(filesList.size()));
                 } else {
                     QMessageBox::information(this, "Errore", "Nessun file trovato nella cartella selezionata.");
                 }
