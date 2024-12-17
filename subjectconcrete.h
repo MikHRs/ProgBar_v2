@@ -1,46 +1,55 @@
-//
-// Created by michele on 24/09/24.
-//
+// subjectconcrete.h
 
 #ifndef PROGBAR_V2_SUBJECTCONCRETE_H
 #define PROGBAR_V2_SUBJECTCONCRETE_H
 
 #include "subject.h"
+#include <list>
 #include <string>
 #include <iostream>
+
 class ConcreteSubject : public Subject {
 private:
-    std::vector<std::string> files; // Lista dei file da gestire internamente
+    std::list<std::string> files;  // Lista dei file da caricare
+    int totalFilesLoaded = 0;  // Contatore dei file caricati
 
 public:
+    // Aggiungi un file alla lista
     void addFile(const std::string& file) {
         files.push_back(file);
     }
 
+    // Rimuovi un file dalla lista
     void removeFile(const std::string& file) {
-        files.erase(std::remove(files.begin(), files.end(), file), files.end());
+        files.remove(file);
     }
 
+    // Pulisci la lista dei file
     void clearFiles() {
         files.clear();
+        totalFilesLoaded = 0;  // Reset del contatore
     }
 
+    // Ottieni il numero totale dei file caricati
+    int getTotalFilesLoaded() const override {
+        return totalFilesLoaded;
+    }
+
+    // Funzione di caricamento dei file
     void load() override {
-        int filetotali = files.size();
-        for (int i = 0; i < filetotali; ++i) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            {
-                std::lock_guard<std::mutex> lock(mtx);
-                progresso = static_cast<float>(i + 1) / filetotali;
-            }
-            notify(files[i]);
+        int totalFiles = files.size();
+        for (const auto& file : files) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));  // Simula un tempo di caricamento
+            progresso = static_cast<float>(totalFilesLoaded + 1) / totalFiles;  // Aggiorna il progresso
+
+            totalFilesLoaded++;  // Incrementa il contatore dei file caricati
+
+            notify(file);  // Notifica gli osservatori
         }
-        // Visualizza il numero totale di file caricati
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            std::cout << "Numero totale di file caricati: " << filetotali << std::endl;
-        }
+
+        std::cout << "Numero totale di file caricati: " << totalFilesLoaded << std::endl;
     }
 };
-#endif //PROGBAR_V2_SUBJECTCONCRETE_H
+
+#endif // PROGBAR_V2_SUBJECTCONCRETE_H
 

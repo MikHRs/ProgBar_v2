@@ -1,6 +1,3 @@
-//
-// Created by michele on 19/09/24.
-//
 
 #ifndef PROGBAR_V2_OBSERVER_H
 #define PROGBAR_V2_OBSERVER_H
@@ -20,3 +17,4 @@ public:
 
 
 #endif //PROGBAR_V2_OBSERVER_H
+
