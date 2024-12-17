@@ -7,6 +7,9 @@
 #include <list>
 #include <string>
 #include <iostream>
+#include <chrono>
+#include <thread>
+
 
 class ConcreteSubject : public Subject {
 private:
@@ -48,6 +51,9 @@ public:
         }
 
         std::cout << "Numero totale di file caricati: " << totalFilesLoaded << std::endl;
+    }
+    const std::list<std::shared_ptr<Observer>>& getObservers() const {
+        return observers;
     }
 };
 

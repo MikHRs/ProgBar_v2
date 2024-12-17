@@ -1,36 +1,39 @@
-//
-// Created by michele on 16/12/24.
+#include <gtest/gtest.h> 
+#include "observerconcrete.h"
+#include "subjectconcrete.h"
 
-#include <QtTest/QtTest>
-#include "../observerconcrete.h"
-#include "../subjectconcrete.h"
-
-class TestConcreteObserver : public QObject {
-    Q_OBJECT
-
-private slots:
-    void testObserverUpdate();
-};
-
-void TestConcreteObserver::testObserverUpdate() {
+class ObserverTest : public ::testing::Test {
+protected:
     QProgressBar progressBar;
     QLabel fileNameLabel;
-    ConcreteSubject subject;
+    ConcreteSubject* loader;
+    std::shared_ptr<ConcreteObserver> observer;
 
-    ConcreteObserver observer(&progressBar, &fileNameLabel, &subject);
-    observer.attach(&subject);
+    void SetUp() override {
+        loader = new ConcreteSubject();
+        observer = std::make_shared<ConcreteObserver>(&progressBar, &fileNameLabel, loader);
+        observer->attach(loader);
+    }
 
-    subject.addFile("file1.txt");
-    subject.addFile("file2.txt");
+    void TearDown() override {
+        delete loader;
+    }
+};
 
-    subject.load();
+TEST_F(ObserverTest, UpdateMethod) {
+    loader->addFile("file1.txt");
+    loader->load();
 
-    QCOMPARE(progressBar.value(), 100);  // Controlla che il progresso sia al massimo
-    QCOMPARE(fileNameLabel.text(), "file2.txt");  // Controlla l'ultimo file caricato
+    EXPECT_EQ(progressBar.value(), 100);
+    EXPECT_EQ(fileNameLabel.text().toStdString(), "file1.txt");
 }
 
-// Macro necessaria per eseguire i test
-QTEST_MAIN(TestConcreteObserver)
-#include "test_observer.moc"
+TEST_F(ObserverTest, DetachObserver) {
+    observer->detach(loader);
 
-//
+    loader->addFile("file2.txt");
+    loader->load();
+
+    EXPECT_EQ(progressBar.value(), 0);  // L'observer non dovrebbe aggiornarsi
+    EXPECT_EQ(fileNameLabel.text().toStdString(), "");
+}

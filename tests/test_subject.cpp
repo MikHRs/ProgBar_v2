@@ -1,63 +1,50 @@
-//
-// Created by michele on 16/12/24.
+#include <gtest/gtest.h> 
+#include "subjectconcrete.h"
+#include "observerconcrete.h"
 
-#include <QtTest/QtTest>
-#include "../subjectconcrete.h" // Percorso relativo al file da testare
+class ConcreteSubjectTest : public ::testing::Test {
+protected:
+    ConcreteSubject* loader;
 
-class TestConcreteSubject : public QObject {
-    Q_OBJECT
+    void SetUp() override {
+        loader = new ConcreteSubject();
+    }
 
-private slots:
-    void testAddFile();          // Test per aggiungere file
-    void testRemoveFile();       // Test per rimuovere file
-    void testClearFiles();       // Test per pulire la lista
-    void testLoadFiles();        // Test per il caricamento dei file
+    void TearDown() override {
+        delete loader;
+    }
 };
 
-void TestConcreteSubject::testAddFile() {
-    ConcreteSubject subject;
+TEST_F(ConcreteSubjectTest, LoadFiles) {
+    loader->addFile("file1.txt");
+    loader->addFile("file2.txt");
+    loader->load();
 
-    subject.addFile("file1.txt");
-    subject.addFile("file2.txt");
-
-    QCOMPARE(subject.getTotalFilesLoaded(), 0);  // Nessun file caricato ancora
+    EXPECT_EQ(loader->getTotalFilesLoaded(), 2);
 }
 
-void TestConcreteSubject::testRemoveFile() {
-    ConcreteSubject subject;
+TEST_F(ConcreteSubjectTest, NotifyObservers) {
+    QProgressBar progressBar;
+    QLabel fileNameLabel;
+    auto observer = std::make_shared<ConcreteObserver>(&progressBar, &fileNameLabel, loader);
+    observer->attach(loader);
 
-    subject.addFile("file1.txt");
-    subject.addFile("file2.txt");
-    subject.removeFile("file1.txt");
+    loader->addFile("file1.txt");
+    loader->addFile("file2.txt");
+    loader->load();
 
-    // Controlla che il file rimosso non sia più nella lista
-    subject.load();  // Simula il caricamento
-    QCOMPARE(subject.getTotalFilesLoaded(), 1);  // Solo un file dovrebbe essere caricato
+    EXPECT_EQ(progressBar.value(), 100);
+    EXPECT_EQ(fileNameLabel.text().toStdString(), "file2.txt");
 }
 
-void TestConcreteSubject::testClearFiles() {
-    ConcreteSubject subject;
+TEST_F(ConcreteSubjectTest, SubscribeUnsubscribeObserver) {
+    QProgressBar progressBar;
+    QLabel fileNameLabel;
+    auto observer = std::make_shared<ConcreteObserver>(&progressBar, &fileNameLabel, loader);
 
-    subject.addFile("file1.txt");
-    subject.addFile("file2.txt");
-    subject.clearFiles();
+    observer->attach(loader);
+    EXPECT_EQ(loader->getObservers().size(), 1);
 
-    QCOMPARE(subject.getTotalFilesLoaded(), 0);
+    observer->detach(loader);
+    EXPECT_EQ(loader->getObservers().size(), 0);
 }
-
-void TestConcreteSubject::testLoadFiles() {
-    ConcreteSubject subject;
-
-    subject.addFile("file1.txt");
-    subject.addFile("file2.txt");
-
-    subject.load();
-
-    QCOMPARE(subject.getTotalFilesLoaded(), 2);
-}
-
-// Macro necessaria per eseguire i test
-QTEST_MAIN(TestConcreteSubject)
-#include "test_subject.moc"
-
-//
