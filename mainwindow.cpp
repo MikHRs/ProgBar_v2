@@ -39,9 +39,9 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
             }
 
             if (!filesList.isEmpty()) {
-                std::thread loadingThread([loader]() { loader->load(); });
-                loadingThread.detach();
-            } else {
+                loader->load();
+            }
+            else {
                 QMessageBox::information(this, "Errore", "Nessun file trovato nella cartella selezionata.");
             }
         }

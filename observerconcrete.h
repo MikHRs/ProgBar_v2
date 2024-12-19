@@ -1,5 +1,3 @@
-// observerconcrete.h
-
 #ifndef PROGBAR_V2_OBSERVERCONCRETE_H
 #define PROGBAR_V2_OBSERVERCONCRETE_H
 
@@ -8,11 +6,13 @@
 #include <QProgressBar>
 #include <QLabel>
 
-class ConcreteObserver : public Observer {
+#include <memory>
+
+class ConcreteObserver : public Observer, public std::enable_shared_from_this<ConcreteObserver> {
 private:
     QProgressBar* progressBar;
     QLabel* fileNameLabel;
-    ConcreteSubject* loader; // Aggiungi il riferimento a ConcreteSubject
+    ConcreteSubject* loader;
 
 public:
     explicit ConcreteObserver(QProgressBar* bar, QLabel* label, ConcreteSubject* subject)
@@ -23,20 +23,24 @@ public:
     }
 
     void update(float progresso, const std::string& currentFile) override {
-        // Ora possiamo usare loader direttamente, senza bisogno di dynamic_cast
-        QMetaObject::invokeMethod(progressBar, "setValue", Q_ARG(int, static_cast<int>(progresso * 100)));
-        QMetaObject::invokeMethod(fileNameLabel, "setText", Q_ARG(QString, QString::fromStdString(currentFile)));
-
-        // Esempio di cosa puoi fare con loader se necessario:
-        // loader->doSomething();
+        if (progressBar && fileNameLabel) {
+            QMetaObject::invokeMethod(progressBar, "setValue", Q_ARG(int, static_cast<int>(progresso * 100)));
+            QMetaObject::invokeMethod(fileNameLabel, "setText", Q_ARG(QString, QString::fromStdString(currentFile)));
+        }
     }
 
     void attach(Subject* subject) override {
-        subject->subscribe(std::shared_ptr<Observer>(this));
+        if (subject) {
+            // Usa shared_from_this per ottenere un std::shared_ptr valido all'interno di attach
+            subject->subscribe(shared_from_this());
+        }
     }
 
     void detach(Subject* subject) override {
-        subject->unsubscribe(std::shared_ptr<Observer>(this));
+        if (subject) {
+            // Usa shared_from_this per disiscrivere il puntatore dello stesso oggetto
+            subject->unsubscribe(shared_from_this());
+        }
     }
 
     ~ConcreteObserver() override = default;

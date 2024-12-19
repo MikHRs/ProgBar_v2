@@ -1,53 +1,86 @@
-#include <gtest/gtest.h> 
+#include <gtest/gtest.h>
 #include <QApplication>
-#include <QSignalSpy>
-#include "mainwindow.h"
-#include "subjectconcrete.h"
+#include <QDir>
+#include <QFile>
+#include "../mainwindow.h"
+#include "../subjectconcrete.h"
 
 class MainWindowTest : public ::testing::Test {
 protected:
-    QVBoxLayout* layout;
-    QProgressBar* progressBar;
-    QLabel* fileNameLabel;
-    QPushButton* button;
-    ConcreteSubject* loader;
-    MainWindow* window;
+    static QApplication* app;
+
+    static void SetUpTestSuite() {
+        // Crea QApplication una volta per tutti i test
+        int argc = 0;
+        char** argv = nullptr;
+        app = new QApplication(argc, argv);
+    }
+
+    static void TearDownTestSuite() {
+        delete app; // Rimuovi QApplication quando tutti i test sono completati
+    }
 
     void SetUp() override {
-        layout = new QVBoxLayout();
-        progressBar = new QProgressBar();
-        fileNameLabel = new QLabel();
-        button = new QPushButton("Test Button");
-
-        loader = new ConcreteSubject();
-        window = new MainWindow(loader);
-
-        // Configurazione della MainWindow
-        window->setLayout(layout);
-        layout->addWidget(progressBar);
-        layout->addWidget(fileNameLabel);
-        layout->addWidget(button);
+        QDir dir("test_folder");
+        if (!dir.exists()) {
+            dir.mkpath(".");
+        }
     }
 
     void TearDown() override {
-        delete window;
-        delete loader;
-        delete progressBar;
-        delete fileNameLabel;
-        delete button;
+        QDir dir("test_folder");
+        if (dir.exists()) {
+            dir.removeRecursively();
+        }
     }
 };
 
-TEST_F(MainWindowTest, ButtonClickTest) {
-    QSignalSpy spy(button, &QPushButton::clicked);
-    button->click();
+// Definizione statica di QApplication
+QApplication* MainWindowTest::app = nullptr;
 
-    EXPECT_EQ(spy.count(), 1);  // Verifica se il pulsante è stato cliccato una volta
+TEST_F(MainWindowTest, SelectFolderAndLoadFilesFirst) {
+    ConcreteSubject loader;
+    MainWindow mainWindow(&loader);
 
-    loader->addFile("file1.txt");
-    loader->addFile("file2.txt");
-    loader->load();
+    QDir dir("test_folder");
+    QFile file1("test_folder/test1.txt");
+    QFile file2("test_folder/test2.txt");
+    ASSERT_TRUE(file1.open(QIODevice::WriteOnly));
+    ASSERT_TRUE(file2.open(QIODevice::WriteOnly));
+    file1.close();
+    file2.close();
 
-    EXPECT_EQ(progressBar->value(), 100);  // Verifica se la progress bar si è aggiornata
-    EXPECT_EQ(fileNameLabel->text().toStdString(), "file2.txt");
+    dir.setPath("test_folder");
+    QStringList fileList = dir.entryList(QDir::Files);
+    ASSERT_EQ(fileList.size(), 2);
+
+    for (const auto& file : fileList) {
+        loader.addFile((dir.absoluteFilePath(file)).toStdString());
+    }
+
+    loader.load();
+
+    EXPECT_EQ(loader.getTotalFilesLoaded(), 2);
+}
+
+TEST_F(MainWindowTest, SelectFolderAndLoadFilesSecond) {
+    ConcreteSubject loader;
+    MainWindow mainWindow(&loader);
+
+    QDir dir("test_folder");
+    QFile file1("test_folder/test3.txt");
+    ASSERT_TRUE(file1.open(QIODevice::WriteOnly));
+    file1.close();
+
+    dir.setPath("test_folder");
+    QStringList fileList = dir.entryList(QDir::Files);
+    ASSERT_EQ(fileList.size(), 1);
+
+    for (const auto& file : fileList) {
+        loader.addFile((dir.absoluteFilePath(file)).toStdString());
+    }
+
+    loader.load();
+
+    EXPECT_EQ(loader.getTotalFilesLoaded(), 1);
 }

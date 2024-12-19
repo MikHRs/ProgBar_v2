@@ -1,4 +1,3 @@
-
 #ifndef PROGBAR_V2_OBSERVER_H
 #define PROGBAR_V2_OBSERVER_H
 #include <QProgressBar>
@@ -17,4 +16,3 @@ public:
 
 
 #endif //PROGBAR_V2_OBSERVER_H
-

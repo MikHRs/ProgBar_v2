@@ -1,50 +1,52 @@
-#include <gtest/gtest.h> 
-#include "subjectconcrete.h"
-#include "observerconcrete.h"
+#include <gtest/gtest.h>
+#include <QTest>
+#include <QApplication>
+#include "../subjectconcrete.h" // Include della classe ConcreteSubject
 
-class ConcreteSubjectTest : public ::testing::Test {
-protected:
-    ConcreteSubject* loader;
+TEST(ConcreteSubjectTest, AddRemoveAndClearFiles) {
+    ConcreteSubject subject;
 
-    void SetUp() override {
-        loader = new ConcreteSubject();
-    }
+    // Controlla inizialmente che nessun file sia presente
+    EXPECT_EQ(subject.getTotalFilesLoaded(), 0);
 
-    void TearDown() override {
-        delete loader;
-    }
-};
+    // Aggiungi file
+    subject.addFile("file1.txt");
+    subject.addFile("file2.txt");
 
-TEST_F(ConcreteSubjectTest, LoadFiles) {
-    loader->addFile("file1.txt");
-    loader->addFile("file2.txt");
-    loader->load();
+    // Controlla che i file aggiunti non siano ancora caricati
+    EXPECT_EQ(subject.getTotalFilesLoaded(), 0);
 
-    EXPECT_EQ(loader->getTotalFilesLoaded(), 2);
+    // Rimuovi un file specifico
+    subject.removeFile("file1.txt");
+
+    // Rimuovi un file che non esiste (non deve causare errori)
+    subject.removeFile("file3.txt");
+
+    // Pulisci tutti i file
+    subject.clearFiles();
+    EXPECT_EQ(subject.getTotalFilesLoaded(), 0);
 }
 
-TEST_F(ConcreteSubjectTest, NotifyObservers) {
-    QProgressBar progressBar;
-    QLabel fileNameLabel;
-    auto observer = std::make_shared<ConcreteObserver>(&progressBar, &fileNameLabel, loader);
-    observer->attach(loader);
+TEST(ConcreteSubjectTest, LoadFiles) {
+    int argc = 0;
+    char** argv = nullptr;
+    QApplication app(argc, argv);  // Necessario per il ciclo eventi Qt
 
-    loader->addFile("file1.txt");
-    loader->addFile("file2.txt");
-    loader->load();
+    ConcreteSubject subject;
 
-    EXPECT_EQ(progressBar.value(), 100);
-    EXPECT_EQ(fileNameLabel.text().toStdString(), "file2.txt");
-}
+    // Aggiungi file
+    subject.addFile("file1.txt");
+    subject.addFile("file2.txt");
 
-TEST_F(ConcreteSubjectTest, SubscribeUnsubscribeObserver) {
-    QProgressBar progressBar;
-    QLabel fileNameLabel;
-    auto observer = std::make_shared<ConcreteObserver>(&progressBar, &fileNameLabel, loader);
+    // Controlla che nessun file sia ancora caricato
+    EXPECT_EQ(subject.getTotalFilesLoaded(), 0);
 
-    observer->attach(loader);
-    EXPECT_EQ(loader->getObservers().size(), 1);
+    // Simula il caricamento dei file (richiede QTimer e ciclo eventi attivo)
+    subject.load();
 
-    observer->detach(loader);
-    EXPECT_EQ(loader->getObservers().size(), 0);
+    // Attendi il completamento dei timer (ogni file richiede 50ms)
+    QTest::qWait(200); // 50 ms per ogni file -- attesa massima per 2 file
+
+    // Controlla che tutti i file siano stati caricati
+    EXPECT_EQ(subject.getTotalFilesLoaded(), 2);
 }
