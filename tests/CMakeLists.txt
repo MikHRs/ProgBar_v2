@@ -9,11 +9,13 @@ find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Test)
 
 # Aggiungi l'eseguibile per i test
 add_executable(ProgBar_v2_tests
-        test_main.cpp
         test_subject.cpp
-        test_observe.cpp
         test_mainwindow.cpp
         ../mainwindow.cpp
+        ../subject.h
+        ../subjectconcrete.h
+        test_main.cpp
+        # Aggiungi questi due file
 )
 
 # Linka le librerie necessarie ai test

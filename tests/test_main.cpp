@@ -1,21 +1,39 @@
-#include <gtest/gtest.h>     // Libreria Google Test per test automatizzati
-#include <QApplication>      // Necessario per QApplication
-#include "../subjectconcrete.h"  // Inclusione per la classe ConcreteSubject
-#include "../mainwindow.h"       // Inclusione per la classe MainWindow
+//
+// Created by michele on 17/01/25.
+//
 #include <gtest/gtest.h>
 #include <QApplication>
+#include "../mainwindow.h"  // Assicurati che MainWindow sia incluso correttamente
+#include "../subjectconcrete.h"
+
+#include <QApplication>
+#include "mainwindow.h"
+#include "subjectconcrete.h"
+#include <gtest/gtest.h>
 
 #include <gtest/gtest.h>
 #include <QApplication>
+#include "mainwindow.h"
+#include "subjectconcrete.h"
 
-// Funzione principale dei test
-int main(int argc, char** argv) {
-    // Inizializza QApplication per test con Qt
+#include <gtest/gtest.h>
+#include <QApplication>
+#include "mainwindow.h"
+#include "subjectconcrete.h"
+
+TEST(MainTest, ApplicationStartup) {
+    int argc = 0;
+    char* argv[] = {nullptr};
     QApplication app(argc, argv);
 
-    // Inizializza Google Test
-    ::testing::InitGoogleTest(&argc, argv);
+    ConcreteSubject loader;
+    MainWindow window(&loader);
 
-    // Esegui tutti i test Google Test e restituisci il risultato
+    ASSERT_NE(&window, nullptr);
+}
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+

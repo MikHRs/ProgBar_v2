@@ -32,7 +32,6 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
             QDir dir(directory);
             QStringList filesList = dir.entryList(QDir::Files);
 
-            loader->clearFiles();
 
             for (const QString& file : filesList) {
                 loader->addFile((dir.absoluteFilePath(file)).toStdString());
