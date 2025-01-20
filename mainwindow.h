@@ -14,6 +14,8 @@
 #include "observerconcrete.h"
 
 class MainWindow : public QWidget {
+    Q_OBJECT  // Aggiungi il macro per i segnali e slot
+
 private:
     QLabel* fileCountLabel;
     QLabel* fileNameLabel;
@@ -22,8 +24,9 @@ private:
 
 public:
     explicit MainWindow(ConcreteSubject* loader);
+
+    public slots:
+        void updateFileName(const std::string& fileName);  // Slot per aggiornare il nome del file
 };
 
 #endif // PROGBAR_V2_MAINWINDOW_H
-
-

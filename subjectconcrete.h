@@ -42,7 +42,7 @@ public:
     void loadNextFile() {
         if (fileIterator == files.end()) {
             std::cout << "Caricamento completato. File totali caricati: " << totalFilesLoaded << std::endl;
-            emit loadingFinished();  // Segnale per indicare che il caricamento è finito
+            emit loadingFinished();
             return;
         }
 
@@ -53,13 +53,17 @@ public:
 
         std::cout << "File caricato: " << currentFile << std::endl;
 
+        // Notifica gli observer
         notify(currentFile);
 
-        emit progressUpdated(progresso);  // Segnale per aggiornare il progresso
+        emit progressUpdated(progresso);
+
+        // Emessi il segnale per notificare che un file è stato caricato
+        emit fileLoaded(currentFile);
 
         ++fileIterator;
 
-        QTimer::singleShot(500, this, &ConcreteSubject::loadNextFile);  // Usa QTimer per il prossimo file
+        QTimer::singleShot(500, this, &ConcreteSubject::loadNextFile);
     }
 
     void load() override {
@@ -78,7 +82,8 @@ public:
 
 signals:
     void loadingFinished();  // Segnale che indica il completamento del caricamento
-    void progressUpdated(float progress);  // Segnale per aggiornare il progresso
+    void progressUpdated(float progress);  // Segnale per aggiornare il progr
+    void fileLoaded(const std::string& fileName);
 };
 
 #endif // PROGBAR_V2_SUBJECTCONCRETE_H

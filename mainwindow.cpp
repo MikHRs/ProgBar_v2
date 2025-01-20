@@ -1,8 +1,4 @@
 #include "mainwindow.h"
-// mainwindow.cpp
-
-
-// mainwindow.cpp
 
 MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
     QVBoxLayout* layout = new QVBoxLayout(this);
@@ -26,12 +22,14 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
     observer = std::make_shared<ConcreteObserver>(progressBar, fileNameLabel, loader);
     observer->attach(loader);
 
+    // Collegare il segnale fileLoaded al nuovo slot updateFileName
+    connect(loader, &ConcreteSubject::fileLoaded, this, &MainWindow::updateFileName);
+
     connect(button, &QPushButton::clicked, [loader, this]() {
         QString directory = QFileDialog::getExistingDirectory(this, "Seleziona una cartella", "");
         if (!directory.isEmpty()) {
             QDir dir(directory);
             QStringList filesList = dir.entryList(QDir::Files);
-
 
             for (const QString& file : filesList) {
                 loader->addFile((dir.absoluteFilePath(file)).toStdString());
@@ -45,5 +43,10 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
             }
         }
     });
+}
+
+// Implementazione dello slot per aggiornare il nome del file
+void MainWindow::updateFileName(const std::string& fileName) {
+    fileNameLabel->setText(QString::fromStdString(fileName));  // Imposta il testo del QLabel con il nome del file
 }
 

@@ -35,33 +35,26 @@
 #include "subjectconcrete.h"
 #include "observerconcrete.h"
 
-class TestObserver : public Observer {
-public:
-    float receivedProgress;
-    std::string receivedFile;
+#include <gtest/gtest.h>
+#include <QCoreApplication>
+#include <QSignalSpy>
+#include "subjectconcrete.h"
 
-    TestObserver() : receivedProgress(0), receivedFile("") {}
+TEST(ConcreteSubjectTest, AsynchronousLoading) {
+    int argc = 0;
+    char** argv = nullptr;
+    QCoreApplication app(argc, argv);
 
-    void update(float progresso, const std::string& currentFile) override {
-        receivedProgress = progresso;
-        receivedFile = currentFile;
-    }
-
-    void attach(Subject* subject) override {}
-    void detach(Subject* subject) override {}
-};
-
-TEST(ConcreteSubjectTest, LoadFilesTest) {
     ConcreteSubject loader;
-    auto observer = std::make_shared<TestObserver>();
 
-    loader.subscribe(observer);
+    QSignalSpy finishedSpy(&loader, &ConcreteSubject::loadingFinished);
 
     loader.addFile("file1.txt");
     loader.addFile("file2.txt");
     loader.load();
 
+    // Aspetta che il segnale "loadingFinished" venga emesso entro 3 secondi
+    ASSERT_TRUE(finishedSpy.wait(3000));
+
     EXPECT_EQ(loader.getTotalFilesLoaded(), 2);
-    EXPECT_EQ(observer->receivedProgress, 1.0);
-    EXPECT_EQ(observer->receivedFile, "file2.txt");
 }

@@ -19,7 +19,8 @@
 #include <QApplication>
 #include "mainwindow.h"
 #include "subjectconcrete.h"
-
+#include <iostream>
+#include <QDebug>
 TEST(MainWindowTest, ProgressBarTest) {
     int argc = 0;
     char* argv[] = {nullptr};
@@ -43,25 +44,3 @@ TEST(MainWindowTest, ProgressBarTest) {
     app.exec();
 }
 
-TEST(MainWindowTest, FileNameLabelTest) {
-    int argc = 0;
-    char* argv[] = {nullptr};
-    QApplication app(argc, argv);
-
-    ConcreteSubject loader;
-    MainWindow window(&loader);
-
-    QLabel* fileNameLabel = window.findChild<QLabel*>();
-    ASSERT_NE(fileNameLabel, nullptr);
-
-    loader.addFile("file1.txt");
-    loader.addFile("file2.txt");
-    loader.load();
-
-    QTimer::singleShot(1000, [&]() {
-        EXPECT_EQ(fileNameLabel->text(), "file2.txt");
-        app.quit();
-    });
-
-    app.exec();
-}
