@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
+MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader), fileCount(0) {  // Inizializza fileCount
     QVBoxLayout* layout = new QVBoxLayout(this);
 
     QLabel* label = new QLabel("Caricamento risorse", this);
@@ -9,12 +9,12 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
     progressBar->setValue(0);
 
     fileNameLabel = new QLabel("", this);
-    fileCountLabel = new QLabel("", this);
+    fileCountLabel = new QLabel("File caricati: 0", this);  // Inizializza il fileCountLabel
     QPushButton* button = new QPushButton("Seleziona cartella e inizia caricamento", this);
 
     layout->addWidget(label);
     layout->addWidget(progressBar);
-    layout->addWidget(fileCountLabel);
+    layout->addWidget(fileCountLabel);  // Aggiungi il fileCountLabel al layout
     layout->addWidget(button);
     layout->addWidget(fileNameLabel);
 
@@ -45,8 +45,10 @@ MainWindow::MainWindow(ConcreteSubject* loader) : loader(loader) {
     });
 }
 
-// Implementazione dello slot per aggiornare il nome del file
+// Implementazione dello slot per aggiornare il nome del file e il numero di file caricati
 void MainWindow::updateFileName(const std::string& fileName) {
     fileNameLabel->setText(QString::fromStdString(fileName));  // Imposta il testo del QLabel con il nome del file
-}
 
+    fileCount++;  // Incrementa il contatore dei file caricati
+    fileCountLabel->setText(QString("File caricati: %1").arg(fileCount));  // Aggiorna il contatore sul label
+}
