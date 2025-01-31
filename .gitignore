@@ -1,1 +1,21 @@
 cmake-build-debug/
+# Ignora file di configurazione specifici dell'utente
+*.pro.user
+
+# Ignora directory di build
+build/
+cmake-build-debug/
+cmake-build-release/
+cmake-build-*
+
+# Ignora i file generati da CMake
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+
+# Ignora file di sistema o IDE
+.DS_Store
+.idea/
+*.swp
+*.log
